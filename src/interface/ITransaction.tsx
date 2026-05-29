@@ -4,4 +4,11 @@ export default interface Transaction {
   amount: number
   type: string
   date: string
+
+  categoryId: string
+
+  category?: {
+    id: string
+    name: string
+  }
 }

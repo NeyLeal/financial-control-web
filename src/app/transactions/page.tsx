@@ -13,22 +13,48 @@ type Transaction = {
   amount: number
   type: string
   date: string
+  categoryId: string
+}
+
+interface Category {
+  id: string
+  name: string
 }
 
 export default function TransactionsPage() {
-  const [transactions, setTransactions] = useState<
-    Transaction[]
-  >([])
+  const [transactions, setTransactions] = useState
+  <Transaction[]>([])
 
   const [loading, setLoading] = useState(true)
 
   const [isModalOpen, setIsModalOpen] =
     useState(false)
-
+  const [editingId, setEditingId] =
+  useState<string | null>(null)
   const [title, setTitle] = useState("")
   const [amount, setAmount] = useState("")
   const [type, setType] = useState("Income")
 
+  const [categories, setCategories] =
+  useState<Category[]>([])
+
+    const [categoryId, setCategoryId] =
+    useState("")
+
+    async function loadCategories() {
+
+    try {
+
+        const response =
+        await api.get("/Categories")
+
+        setCategories(response.data)
+
+    } catch (error) {
+
+        console.error(error)
+    }
+    }
   async function loadTransactions() {
     try {
       const response =
@@ -44,43 +70,106 @@ export default function TransactionsPage() {
       setLoading(false)
     }
   }
+    function handleEditTransaction(
+    transaction: Transaction
+    ) {
+    setEditingId(transaction.id)
 
-  async function handleCreateTransaction() {
+    setTitle(
+        transaction.description
+    )
+
+    setAmount(
+        transaction.amount.toString()
+    )
+
+    setType(transaction.type)
+
+    setCategoryId(
+        transaction.categoryId
+    )
+
+    setIsModalOpen(true)
+    }
+  async function handleSaveTransaction() {
   try {
-    await api.post("/Transactions", {
-      categoryId:
-        "a5e9e45f-d788-4aa2-99d9-3a855c610574",
 
-      description: title,
-
+    const payload = {
+      categoryId,
       amount: Number(amount),
-
+      description: title,
       type:
         type === "Income"
           ? 1
           : 2,
-    })
+    }
+
+    if (editingId) {
+
+      await api.put(
+        `/Transactions/${editingId}`,
+        payload
+      )
+
+    } else {
+
+      await api.post(
+        "/Transactions",
+        payload
+      )
+
+    }
 
     setTitle("")
     setAmount("")
     setType("Income")
+    setCategoryId("")
+    setEditingId(null)
 
     setIsModalOpen(false)
 
     loadTransactions()
+    loadCategories()
+
   } catch (error) {
+
     console.error(error)
 
     alert(
-      "Erro ao criar transação"
+      "Erro ao salvar transação"
     )
+
   }
 }
+async function handleDeleteTransaction(
+  id: string
+) {
 
-  useEffect(() => {
+  const confirmed =
+    confirm(
+      "Deseja excluir esta transação?"
+    )
+
+  if (!confirmed) return
+
+  try {
+
+    await api.delete(
+      `/Transactions/${id}`
+    )
+
     loadTransactions()
-  }, [])
+    loadCategories()
+  } catch (error) {
 
+    console.error(error)
+
+    alert(
+      "Erro ao excluir transação"
+    )
+
+  }
+}
   return (
     <>
       <main
@@ -157,6 +246,9 @@ export default function TransactionsPage() {
                   <th style={thStyle}>
                     Data
                   </th>
+                  <th style={thStyle}>
+                    Ações
+                  </th>
                 </tr>
               </thead>
 
@@ -213,6 +305,7 @@ export default function TransactionsPage() {
                                 : "#cc0000",
 
                             fontWeight: "bold",
+                            borderBottom: "1px solid #d6d3ce"
                         }}
                         >
                         {transaction.type ===
@@ -228,6 +321,39 @@ export default function TransactionsPage() {
                             "pt-BR"
                         )}
                       </td>
+                      <td style={tdStyle}>
+                        <div
+                            style={{
+                            display: "flex",
+                            gap: "8px",
+                            }}
+                        >
+                            <button
+                            style={buttonStyle}
+                            onClick={() =>
+                                handleEditTransaction(
+                                transaction
+                                )
+                            }
+                            >
+                            Editar
+                            </button>
+
+                            <button
+                            style={{
+                                ...buttonStyle,
+                                color: "red",
+                            }}
+                            onClick={() =>
+                                handleDeleteTransaction(
+                                transaction.id
+                                )
+                            }
+                            >
+                            Excluir
+                            </button>
+                        </div>
+                        </td>
                     </tr>
                   )
                 )}
@@ -238,80 +364,119 @@ export default function TransactionsPage() {
       </main>
 
       <XPModal
-        title="Nova Transação"
+        title={
+        editingId
+            ? "Editar Transação"
+            : "Nova Transação"
+        }
         isOpen={isModalOpen}
         onClose={() =>
-          setIsModalOpen(false)
+            setIsModalOpen(false)
         }
-      >
+        >
         <div
-          style={{
+            style={{
             display: "flex",
             flexDirection: "column",
             gap: "16px",
-          }}
+            }}
         >
-          <div>
+
+            <div>
             <label>Título</label>
 
             <input
-              value={title}
-              onChange={e =>
+                value={title}
+                onChange={e =>
                 setTitle(
-                  e.target.value
+                    e.target.value
                 )
-              }
-              style={inputStyle}
+                }
+                style={inputStyle}
             />
-          </div>
+            </div>
 
-          <div>
+            <div>
             <label>Valor</label>
 
             <input
-              type="number"
-              value={amount}
-              onChange={e =>
+                type="number"
+                value={amount}
+                onChange={e =>
                 setAmount(
-                  e.target.value
+                    e.target.value
                 )
-              }
-              style={inputStyle}
+                }
+                style={inputStyle}
             />
-          </div>
+            </div>
 
-          <div>
+            <div>
+
+            <label>Categoria</label>
+
+            <select
+                value={categoryId}
+                onChange={e =>
+                setCategoryId(
+                    e.target.value
+                )
+                }
+                style={inputStyle}
+            >
+
+                <option value="">
+                Selecione
+                </option>
+
+                {categories.map(category => (
+
+                <option
+                    key={category.id}
+                    value={category.id}
+                >
+                    {category.name}
+                </option>
+
+                ))}
+
+            </select>
+
+            </div>
+
+            <div>
             <label>Tipo</label>
 
             <select
-              value={type}
-              onChange={e =>
+                value={type}
+                onChange={e =>
                 setType(
-                  e.target.value
+                    e.target.value
                 )
-              }
-              style={inputStyle}
+                }
+                style={inputStyle}
             >
-              <option value="Income">
+                <option value="Income">
                 Entrada
-              </option>
+                </option>
 
-              <option value="Expense">
+                <option value="Expense">
                 Saída
-              </option>
+                </option>
             </select>
-          </div>
+            </div>
 
-          <button
+            <button
             onClick={
-              handleCreateTransaction
+                handleSaveTransaction
             }
             style={buttonStyle}
-          >
+            >
             Salvar
-          </button>
+            </button>
+
         </div>
-      </XPModal>
+        </XPModal>
     </>
   )
 }
