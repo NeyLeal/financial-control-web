@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-
+import { useToast } from "@/hooks/useToast"
 import api from "@/services/api"
 
 import XPWindow from "../components/ui/XPWindow"
@@ -14,7 +14,13 @@ interface Category {
 }
 
 export default function CategoriesPage() {
-
+  const { showToast } = useToast()
+  const [
+    CategorieDeleteId,
+    setCategorieDeleteId,
+    ] = useState<
+      string | null
+    >(null)
   const [categories, setCategories] =
     useState<Category[]>([])
 
@@ -100,33 +106,29 @@ export default function CategoriesPage() {
       alert("Erro ao criar categoria")
     }
   }
+  async function confirmDelete() {
+      if (!CategorieDeleteId)
+        return
 
-  async function handleDeleteCategory(
-    id: string
-  ) {
-
-    const confirmDelete =
-      confirm(
-        "Deseja excluir esta categoria?"
-      )
-
-    if (!confirmDelete) return
-
-    try {
+      try {
 
       await api.delete(
-        `/Categories/${id}`
+        `/Categories/${CategorieDeleteId}`
       )
 
-      loadCategories()
+        setCategorieDeleteId(
+          null
+        )
 
-    } catch (error) {
-
-      console.error(error)
-
-      alert("Erro ao excluir categoria")
+        loadCategories()
+      } catch (error) {
+        showToast(
+          "Erro ao excluir categoria",
+          "error"
+        )
+        console.error(error)
+      }
     }
-  }
 
   useEffect(() => {
 
@@ -250,7 +252,7 @@ export default function CategoriesPage() {
                   <button
                     style={buttonStyle}
                     onClick={() =>
-                      handleDeleteCategory(
+                      setCategorieDeleteId(
                         category.id
                       )
                     }
@@ -318,6 +320,57 @@ export default function CategoriesPage() {
             </button>
           </div>
         </XPModal>
+        <XPModal
+                  title="Confirmar Exclusão"
+                  isOpen={
+                    CategorieDeleteId !== null
+                  }
+                  onClose={() =>
+                    setCategorieDeleteId(
+                      null
+                    )
+                  }
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "16px",
+                    }}
+                  >
+                    <p>
+                      Deseja excluir esta
+                      categoria?
+                    </p>
+        
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "8px",
+                      }}
+                    >
+                      <button
+                        style={buttonStyle}
+                        onClick={
+                          confirmDelete
+                        }
+                      >
+                        Sim
+                      </button>
+        
+                      <button
+                        style={buttonStyle}
+                        onClick={() =>
+                          setCategorieDeleteId(
+                            null
+                          )
+                        }
+                      >
+                        Não
+                      </button>
+                    </div>
+                  </div>
+                </XPModal>
       </XPWindow>
     </main>
   )

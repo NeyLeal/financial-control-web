@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-
+import { useToast } from "@/hooks/useToast"
 import XPWindow from "@/app/components/ui/XPWindow"
 import XPModal from "@/app/components/ui/XPModal"
 
@@ -22,54 +22,140 @@ interface Category {
 }
 
 export default function TransactionsPage() {
-  const [transactions, setTransactions] = useState
-  <Transaction[]>([])
 
-  const [loading, setLoading] = useState(true)
+    const { showToast } = useToast()
+    const [page, setPage] =
+    useState(1)
 
-  const [isModalOpen, setIsModalOpen] =
-    useState(false)
-  const [editingId, setEditingId] =
-  useState<string | null>(null)
-  const [title, setTitle] = useState("")
-  const [amount, setAmount] = useState("")
-  const [type, setType] = useState("Income")
+    const [pageSize] =
+      useState(10)
 
-  const [categories, setCategories] =
-  useState<Category[]>([])
+    const [totalItems, setTotalItems] =
+      useState(0)
+
+    const [filterStartDate, setFilterStartDate] =
+    useState("")
+
+    const [filterEndDate, setFilterEndDate] =
+    useState("")
+    const [filterCategoryId, setFilterCategoryId] =
+    useState("")
+  
+    const [filterType, setFilterType] =
+    useState("")
+    const [transactions, setTransactions] =
+    useState<Transaction[]>([])
+
+    const [loading, setLoading] = useState(true)
+
+    const [isModalOpen, setIsModalOpen] =
+      useState(false)
+    const [editingId, setEditingId] =
+    useState<string | null>(null)
+    const [title, setTitle] = useState("")
+    const [amount, setAmount] = useState("")
+    const [type, setType] = useState("Income")
+
+    const [categories, setCategories] =
+    useState<Category[]>([])
 
     const [categoryId, setCategoryId] =
     useState("")
+    const [
+      deleteTransactionId,
+      setDeleteTransactionId,
+    ] = useState<
+      string | null
+    >(null)
+  
+    async function confirmDelete() {
+      if (!deleteTransactionId)
+        return
 
+      try {
+        await api.delete(
+          `/Transactions/${deleteTransactionId}`
+        )
+
+        setDeleteTransactionId(
+          null
+        )
+
+        loadTransactions()
+        showToast(
+          "Transação excluída com sucesso",
+          "success"
+        )
+      } catch (error) {
+        showToast(
+          "Erro ao excluir transação",
+          "error"
+        )
+      }
+    }
     async function loadCategories() {
 
     try {
 
         const response =
         await api.get("/Categories")
-
         setCategories(response.data)
 
     } catch (error) {
 
-        console.error(error)
+        showToast(
+            "Erro ao carregar categorias",
+            "error"
+        )
     }
     }
-  async function loadTransactions() {
-    try {
-      const response =
-        await api.get("/Transactions")
-        
-        console.log(response.data)
-        console.log(response.data.data)
-        
-      setTransactions(response.data.data)
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setLoading(false)
-    }
-  }
+      async function loadTransactions() {
+        try {
+          setLoading(true)
+
+          const response = await api.get(
+            "/Transactions",
+            {
+              params: {
+                page,
+                pageSize,
+
+                categoryId:
+                  filterCategoryId || undefined,
+
+                type:
+                  filterType || undefined,
+
+                startDate:
+                  filterStartDate || undefined,
+
+                endDate:
+                  filterEndDate || undefined,
+              },
+            }
+          )
+
+          setTransactions(
+            response.data.data
+          )
+
+          setTotalItems(
+            response.data.totalItems
+          )
+
+          showToast(
+            "Transações carregadas",
+            "success"
+          )
+        } catch (error) {
+          showToast(
+            "Erro ao carregar transações",
+            "error"
+          )
+        } finally {
+          setLoading(false)
+        }
+      }
     function handleEditTransaction(
     transaction: Transaction
     ) {
@@ -130,46 +216,37 @@ export default function TransactionsPage() {
 
     loadTransactions()
     loadCategories()
+    showToast(
+      "Transação salva com sucesso",
+      "success"
+    )
 
   } catch (error) {
 
-    console.error(error)
-
-    alert(
-      "Erro ao salvar transação"
+    showToast(
+      "Erro ao salvar transação",
+      "error"
     )
 
   }
 }
-async function handleDeleteTransaction(
-  id: string
-) {
 
-  const confirmed =
-    confirm(
-      "Deseja excluir esta transação?"
-    )
+useEffect(() => {
+  loadTransactions()
+  loadCategories()
+}, [
+  page,
+  filterCategoryId,
+  filterType,
+  filterStartDate,
+  filterEndDate,
+])
 
-  if (!confirmed) return
+const totalPages =
+  Math.ceil(
+    totalItems / pageSize
+  )
 
-  try {
-
-    await api.delete(
-      `/Transactions/${id}`
-    )
-
-    loadTransactions()
-    loadCategories()
-  } catch (error) {
-
-    console.error(error)
-
-    alert(
-      "Erro ao excluir transação"
-    )
-
-  }
-}
   return (
     <>
       <main
@@ -204,9 +281,16 @@ async function handleDeleteTransaction(
             </h1>
 
             <button
-              onClick={() =>
+              onClick={() => {
+                setEditingId(null)
+
+                setTitle("")
+                setAmount("")
+                setType("Income")
+                setCategoryId("")
+
                 setIsModalOpen(true)
-              }
+              }}
               style={buttonStyle}
             >
               Nova Transação
@@ -214,11 +298,123 @@ async function handleDeleteTransaction(
           </div>
 
           <div
-            style={{
-              border: "1px solid #7f9db9",
-              background: "white",
-            }}
-          >
+              style={{
+                display: "flex",
+                gap: "16px",
+                marginBottom: "16px",
+                alignItems: "end",
+              }}
+            >
+              <div
+                style={{
+                  minWidth: "250px",
+                }}
+              >
+                <label>Categoria</label>
+
+                <select
+                  value={filterCategoryId}
+                  onChange={e =>
+                    setFilterCategoryId(
+                      e.target.value
+                    )
+                  }
+                  style={inputStyle}
+                >
+                  <option value="">
+                    Todas
+                  </option>
+
+                  {categories.map(category => (
+                    <option
+                      key={category.id}
+                      value={category.id}
+                    >
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div
+                style={{
+                  minWidth: "200px",
+                }}
+              >
+                <label>Tipo</label>
+
+                <select
+                  value={filterType}
+                  onChange={e => {
+                    setPage(1)
+                    setFilterType(
+                      e.target.value
+                    )
+                  }}
+                  style={inputStyle}
+                >
+                  <option value="">
+                    Todos
+                  </option>
+
+                  <option value="1">
+                    Entradas
+                  </option>
+
+                  <option value="2">
+                    Saídas
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label>Data Inicial</label>
+
+                <input
+                  type="date"
+                  value={filterStartDate}
+                  onChange={e =>
+                    setFilterStartDate(
+                      e.target.value
+                    )
+                  }
+                  style={inputStyle}
+                />
+              </div>
+
+              <div>
+                <label>Data Final</label>
+
+                <input
+                  type="date"
+                  value={filterEndDate}
+                  onChange={e =>
+                    setFilterEndDate(
+                      e.target.value
+                    )
+                  }
+                  style={inputStyle}
+                />
+              </div>
+
+              <button
+                onClick={() => {
+                  setFilterCategoryId("")
+                  setFilterType("")
+                  setFilterStartDate("")
+                  setFilterEndDate("")
+                  setPage(1)
+                }}
+                style={buttonStyle}
+              >
+                Limpar
+              </button>
+            </div>
+            <div
+              style={{
+                border: "1px solid #7f9db9",
+                background: "white",
+              }}
+            >
             <table
               style={{
                 width: "100%",
@@ -256,7 +452,7 @@ async function handleDeleteTransaction(
                 {loading && (
                   <tr>
                     <td
-                      colSpan={4}
+                      colSpan={5}
                       style={emptyStyle}
                     >
                       Carregando...
@@ -269,7 +465,7 @@ async function handleDeleteTransaction(
                     0 && (
                     <tr>
                       <td
-                        colSpan={4}
+                        colSpan={5}
                         style={emptyStyle}
                       >
                         Nenhuma transação
@@ -345,9 +541,9 @@ async function handleDeleteTransaction(
                                 color: "red",
                             }}
                             onClick={() =>
-                                handleDeleteTransaction(
+                              setDeleteTransactionId(
                                 transaction.id
-                                )
+                              )
                             }
                             >
                             Excluir
@@ -359,6 +555,40 @@ async function handleDeleteTransaction(
                 )}
               </tbody>
             </table>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginTop: "16px",
+                      }}
+                    >
+                      <button
+                        style={buttonStyle}
+                        disabled={page === 1}
+                        onClick={() =>
+                          setPage(page - 1)
+                        }
+                      >
+                        Anterior
+                      </button>
+
+                      <span>
+                        Página {page} de {totalPages || 1}
+                      </span>
+
+                      <button
+                        style={buttonStyle}
+                        disabled={
+                          page >= totalPages
+                        }
+                        onClick={() =>
+                          setPage(page + 1)
+                        }
+                      >
+                        Próxima
+                      </button>
+                    </div>
           </div>
         </XPWindow>
       </main>
@@ -476,6 +706,58 @@ async function handleDeleteTransaction(
             </button>
 
         </div>
+        </XPModal>
+
+        <XPModal
+          title="Confirmar Exclusão"
+          isOpen={
+            deleteTransactionId !== null
+          }
+          onClose={() =>
+            setDeleteTransactionId(
+              null
+            )
+          }
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "16px",
+            }}
+          >
+            <p>
+              Deseja excluir esta
+              transação?
+            </p>
+
+            <div
+              style={{
+                display: "flex",
+                gap: "8px",
+              }}
+            >
+              <button
+                style={buttonStyle}
+                onClick={
+                  confirmDelete
+                }
+              >
+                Sim
+              </button>
+
+              <button
+                style={buttonStyle}
+                onClick={() =>
+                  setDeleteTransactionId(
+                    null
+                  )
+                }
+              >
+                Não
+              </button>
+            </div>
+          </div>
         </XPModal>
     </>
   )

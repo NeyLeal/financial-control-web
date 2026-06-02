@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 
 import Taskbar from "./components/xp/Taskbar"
-import StartMenu from "./components/xp/StartMenu"
+import ToastProvider from "./components/xp/ToastProvider"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,7 +41,9 @@ export default function RootLayout({
             "linear-gradient(to bottom, #6ea2e8 0%, #4f7dbd 100%)",
         }}
       >
-        {children}
+        <ToastProvider>
+          {children}
+        </ToastProvider>
         <Taskbar />
       </body>
     </html>

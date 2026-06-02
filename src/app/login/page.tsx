@@ -3,13 +3,13 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { login } from "@/services/auth";
+import { useToast } from "@/hooks/useToast";
 
 export default function LoginPage() {
   const router = useRouter();
-
+  const { showToast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
 
   async function handleLogin() {
@@ -21,11 +21,14 @@ export default function LoginPage() {
         password
       );
 
-      console.log(result);
-
       localStorage.setItem(
         "token",
         result.token
+      );
+
+       showToast(
+        "Login bem sucedido",
+        "success"
       );
 
       router.push("/dashboard");
@@ -35,11 +38,9 @@ export default function LoginPage() {
       console.log(
         error?.response?.data
       );
-
-      alert(
-        error?.response?.data?.message
-        ??
-        "Usuário ou senha inválidos"
+      showToast(
+        "Usuário ou senha inválidos",
+        "error"
       );
     }
     finally {

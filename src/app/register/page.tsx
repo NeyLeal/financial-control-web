@@ -1,11 +1,12 @@
 "use client"
 
 import { useState }from "react"
-
+import { useToast } from "@/hooks/useToast"
 import axios from "axios"
+import XPWindow from "../components/ui/XPWindow"
 
 export default function Register(){
-
+const { showToast } = useToast()
 const[
 name,
 setName
@@ -25,65 +26,92 @@ setPassword
 useState("")
 
 async function create(){
+try{
+    await axios.post(
+    "http://localhost:8080/Users",
+    {
+    name,
+    email,
+    password
+    }
+    )
 
-await axios.post(
-"http://localhost:8080/Users",
-{
-name,
-email,
-password
+    showToast(
+    "Conta criada",
+    "success")
 }
-)
-
-alert(
-"Conta criada"
-)
+catch(error:any){
+    showToast(
+    "Erro ao criar conta",
+    "error"
+    )
+}
 
 }
 
 return(
+    <main
+      style={{
+        minHeight: "100vh",
+        background:
+          "linear-gradient(to bottom, #6ea2e8 0%, #4f7dbd 100%)",
 
-<div>
+        display: "flex",
 
-<input
-placeholder="Nome"
+        justifyContent: "center",
 
-onChange={(e)=>
-setName(
-e.target.value
-)}
-/>
+        alignItems: "center",
+      }}
+    >  
 
-<input
-placeholder="Email"
-
-onChange={(e)=>
-setEmail(
-e.target.value
-)}
-/>
-
-<input
-type="password"
-
-placeholder="Senha"
-
-onChange={(e)=>
-setPassword(
-e.target.value
-)}
-/>
-
-<button
-onClick={create}
+    <XPWindow
+ title="Registrar nova conta"
+        width="900px"
+        height="600px"
 >
+    <div>
 
-Criar
+    <input
+    placeholder="Nome"
 
-</button>
+    onChange={(e)=>
+    setName(
+    e.target.value
+    )}
+    />
 
-</div>
+    <input
+    placeholder="Email"
 
+    onChange={(e)=>
+    setEmail(
+    e.target.value
+    )}
+    />
+
+    <input
+    type="password"
+
+    placeholder="Senha"
+
+    onChange={(e)=>
+    setPassword(
+    e.target.value
+    )}
+    />
+
+    <button
+    onClick={create}
+    >
+
+    Criar
+
+    </button>
+
+    </div>
+</XPWindow>
+
+    </main>
 )
 
 }

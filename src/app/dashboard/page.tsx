@@ -26,7 +26,7 @@ type DashboardData = {
 }
   
 export default function Dashboard() {
-
+  
   const [transactions, setTransactions] =
   useState<ITransaction[]>([])
 
@@ -131,7 +131,7 @@ export default function Dashboard() {
             gridTemplateColumns:
               "repeat(3, 1fr)",
 
-            gap: "16px",
+            gap: "10px",
           }}
         >
           <div
@@ -147,7 +147,7 @@ export default function Dashboard() {
                 "inset 1px 1px #fff",
             }}
           >
-            <h2>Saldo Atual</h2>
+            <h2>Saldo deste Mês</h2>
 
             <p
               style={{
@@ -182,7 +182,7 @@ export default function Dashboard() {
                 "inset 1px 1px #fff",
             }}
           >
-            <h2>Entradas</h2>
+            <h2>Entradas deste Mês</h2>
 
             <p
               style={{
@@ -217,7 +217,7 @@ export default function Dashboard() {
                 "inset 1px 1px #fff",
             }}
           >
-            <h2>Saídas</h2>
+            <h2>Saídas deste Mês</h2>
 
             <p
               style={{
@@ -281,6 +281,9 @@ export default function Dashboard() {
                     <th style={thStyle}>
                     Tipo
                     </th>
+                    <th style={thStyle}>
+                      Data
+                    </th>
                 </tr>
                 </thead>
 
@@ -330,6 +333,15 @@ export default function Dashboard() {
                             ? "Entrada"
                             : "Saída"}
                         </td>
+
+                        <td style={tdStyle}>
+                        { new Date(
+                            transaction.date
+                        ).toLocaleDateString(
+                            "pt-BR"
+                        )}
+                        </td>
+
                     </tr>
                     )
                 )}
