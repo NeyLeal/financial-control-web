@@ -142,11 +142,6 @@ export default function TransactionsPage() {
           setTotalItems(
             response.data.totalItems
           )
-
-          showToast(
-            "Transações carregadas",
-            "success"
-          )
         } catch (error) {
           showToast(
             "Erro ao carregar transações",

@@ -8,7 +8,7 @@ type XPWindowProps = {
 export default function XPWindow({
   title,
   children,
-  width = "700px",
+  width = "90%",
   height = "500px",
 }: XPWindowProps) {
   return (
@@ -23,7 +23,7 @@ export default function XPWindow({
         borderBottomRightRadius: "3px",
         border: "1px solid #0831d9",
         boxShadow: "6px 6px 0px #000",
-        overflow: "hidden",
+        overflow: "auto",
         display: "flex",
         flexDirection: "column",
       }}
@@ -68,9 +68,10 @@ export default function XPWindow({
               border: "1px solid #7f9db9",
               fontWeight: "bold",
               cursor: "pointer",
+              color: "black",
             }}
           >
-            _
+            -
           </button>
 
           <button
@@ -81,6 +82,7 @@ export default function XPWindow({
               border: "1px solid #7f9db9",
               fontWeight: "bold",
               cursor: "pointer",
+              color: "black",
             }}
           >
             □
@@ -92,7 +94,7 @@ export default function XPWindow({
               height: "22px",
               background: "#ff3b3b",
               border: "1px solid #7f0000",
-              color: "white",
+              color: "black",
               fontWeight: "bold",
               cursor: "pointer",
             }}

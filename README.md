@@ -1,36 +1,125 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Financial Control XP
 
-## Getting Started
+Sistema de controle financeiro pessoal desenvolvido com Next.js e TypeScript, consumindo uma API REST construída em .NET 8.
 
-First, run the development server:
+A interface foi inspirada no Windows XP, trazendo uma experiência visual nostálgica combinada com tecnologias modernas de desenvolvimento web.
+
+---
+
+## Objetivo
+
+Este projeto foi desenvolvido para demonstrar conhecimentos em desenvolvimento Full Stack utilizando .NET 8, SQL Server e Next.js, aplicando conceitos de autenticação JWT, arquitetura em camadas, integração frontend/backend e boas práticas de desenvolvimento.
+
+---
+
+## Tecnologias
+
+### Frontend
+
+* Next.js 16
+* React
+* TypeScript
+* Axios
+
+### Backend
+
+* .NET 8
+* ASP.NET Core
+* Entity Framework Core
+* SQL Server
+* JWT Authentication
+
+---
+
+## Funcionalidades
+
+### Autenticação
+
+* Cadastro de usuários
+* Login com JWT
+* Rotas protegidas
+* Logout
+
+### Dashboard
+
+* Saldo atual
+* Entradas
+* Saídas
+* Últimas movimentações
+* Categorias com maior movimentação
+
+### Categorias
+
+* Criar categoria
+* Editar categoria
+* Excluir categoria
+
+### Transações
+
+* Criar transação
+* Editar transação
+* Excluir transação
+* Paginação
+* Filtros por categoria
+* Filtros por tipo
+* Filtros por período
+
+### Interface
+
+* Tema inspirado no Windows XP
+* Toasts personalizados
+* Modais personalizados
+* Menu Start
+* Navegação entre módulos
+* Layout responsivo
+
+---
+
+## Estrutura do Projeto
+
+financial-control-api
+
+financial-control-web
+
+---
+
+## Backend
+
+O backend deste projeto pode ser encontrado em:
+
+https://github.com/NeyLeal/financial-control-api
+
+Consulte o README do backend para instruções de configuração, banco de dados e execução da API.
+
+---
+
+## Executando o Frontend
+
+Instale as dependências:
+
+```bash
+npm install
+```
+
+Execute o projeto:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+A aplicação estará disponível em:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```txt
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+## Autor
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Ney Jr
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Desenvolvedor Full Stack focado em .NET, Next.js, TypeScript e desenvolvimento de jogos com Unity.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---

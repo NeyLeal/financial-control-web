@@ -22,6 +22,16 @@ export default function Taskbar() {
 
   if (!isAuthenticated) return null
 
+  function handleStartClick() {
+  const token = localStorage.getItem("token")
+
+  if (!token) {
+    return
+  }
+
+  setIsOpen(prev => !prev)
+}
+
   return (
     <>
       <StartMenu isOpen={isOpen} />
@@ -48,7 +58,8 @@ export default function Taskbar() {
       >
         <StartButton
           onClick={() =>
-            setIsOpen(!isOpen)
+
+            handleStartClick()
           }
         />
       </div>

@@ -12,6 +12,7 @@ export default function StartMenu({
   if (!isOpen) return null
 
   return (
+    
     <div
       style={{
         position: "fixed",
@@ -73,6 +74,11 @@ export default function StartMenu({
           href="/categories"
           icon="📁"
           label="Categorias"
+        />
+        <MenuItem
+          href="/about"
+          icon="ℹ️"
+          label="Sobre"
         />
 
         <div

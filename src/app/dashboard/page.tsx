@@ -7,6 +7,7 @@ import XPWindow from "../components/ui/XPWindow"
 import api from "@/services/api"
 
 import ITransaction from "../../interface/ITransaction"
+import XPLoader from "../components/xp/XPLoader"
 
 type DashboardData = {
   currentMonthBalance: number
@@ -26,7 +27,8 @@ type DashboardData = {
 }
   
 export default function Dashboard() {
-  
+  const [loading, setLoading] =
+  useState(true)
   const [transactions, setTransactions] =
   useState<ITransaction[]>([])
 
@@ -45,6 +47,7 @@ export default function Dashboard() {
         topCategories: [],
     })
     async function loadTransactions() {
+      setLoading(true)
         try {
             const response =
             await api.get(
@@ -58,6 +61,9 @@ export default function Dashboard() {
         } catch (error) {
             console.error(error)
         }
+            finally {
+              setLoading(false)
+        } 
     }
 
   async function loadDashboard() {
@@ -94,7 +100,29 @@ export default function Dashboard() {
 
    padding: "10px",
  }
+    if (loading)
+    {
+      return (
+        <main
+        style={{
+          minHeight: "100vh",
 
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <XPWindow
+          title="Dashboard"
+          width="900px"
+          height="600px"
+        >
+          <XPLoader />
+        </XPWindow>
+        </main>
+        
+      )
+    }
   return (
     <main
       style={{
@@ -243,13 +271,14 @@ export default function Dashboard() {
                 marginTop: "24px",
             }}
             >
-            <h2
-                style={{
-                marginBottom: "12px",
-                }}
-            >
-                Últimas Transações
-            </h2>
+                            <h2
+                  style={{
+                    marginTop: "10px",
+                    marginBottom: "10px",
+                  }}
+                >
+                  Últimas Movimentações
+                </h2>
 
             <table
                 style={{
@@ -264,6 +293,7 @@ export default function Dashboard() {
                     "1px solid #7f9db9",
                 }}
             >
+
                 <thead
                 style={{
                     background: "#dbe5f1",
@@ -286,9 +316,11 @@ export default function Dashboard() {
                     </th>
                 </tr>
                 </thead>
-
+              
                 <tbody>
-                {transactions.map(
+                {transactions
+                  .slice(0, 5)
+                  .map(
                     transaction => (
                     <tr
                         key={
